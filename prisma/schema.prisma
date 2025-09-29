@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model alerta {
+  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id   String?        @db.Uuid
+  prestamo_id  String?        @db.Uuid
+  cuota_id     String?        @db.Uuid
+  tipo_alerta  String?
+  detalle      String?
+  estado       estado_alerta?
+  creado_en    DateTime?      @default(now()) @db.Timestamp(6)
+  cuota        cuota?         @relation(fields: [cuota_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prestamo     prestamo?      @relation(fields: [prestamo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuario      usuario?       @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  notificacion notificacion[]
+}
+
+model auditoria {
+  id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  entidad          String?
+  entidad_id       String?   @db.Uuid
+  accion           String?
+  actor_usuario_id String?   @db.Uuid
+  dif_cambios      Json?
+  timestamp        DateTime? @default(now()) @db.Timestamp(6)
+  correlacion_id   String?
+  usuario          usuario?  @relation(fields: [actor_usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model autenticacion {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id     String?   @db.Uuid
+  proveedor      String?
+  hash_password  String?
+  mfa_habilitado Boolean?  @default(false)
+  ultimo_login   DateTime? @db.Timestamp(6)
+  usuario        usuario?  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model cuota {
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  prestamo_id     String?          @db.Uuid
+  vencimiento     DateTime?        @db.Date
+  monto           Decimal?         @db.Decimal
+  saldo_pendiente Decimal?         @db.Decimal
+  estado          estado_prestamo?
+  creado_en       DateTime?        @default(now()) @db.Timestamp(6)
+  version         Int?             @default(1)
+  alerta          alerta[]
+  prestamo        prestamo?        @relation(fields: [prestamo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pago_detalle    pago_detalle[]
+}
+
+model evento_outbox {
+  id                 String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tipo_evento        String?
+  agregado_tipo      String?
+  agregado_id        String?   @db.Uuid
+  estado             String?
+  publicado_en       DateTime? @db.Timestamp(6)
+  clave_idempotencia String?
+}
+
+model gasto {
+  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id     String?       @db.Uuid
+  descripcion    String?
+  categoria_id   String?       @db.Uuid
+  monto          Decimal?      @db.Decimal
+  fecha_registro DateTime?     @db.Date
+  estado         estado_gasto?
+  creado_en      DateTime?     @default(now()) @db.Timestamp(6)
+  version        Int?          @default(1)
+  usuario        usuario?      @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model notificacion {
+  id           String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alerta_id    String?              @db.Uuid
+  canal        String?
+  destinatario String?
+  mensaje      String?
+  estado       estado_notificacion?
+  creado_en    DateTime?            @default(now()) @db.Timestamp(6)
+  alerta       alerta?              @relation(fields: [alerta_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pago {
+  id              String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id      String?        @db.Uuid
+  monto_total     Decimal?       @db.Decimal
+  referencia      String?
+  estado          String?
+  creado_en       DateTime?      @default(now()) @db.Timestamp(6)
+  actualizado_en  DateTime?      @default(now()) @db.Timestamp(6)
+  idempotency_key String?
+  usuario         usuario?       @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pago_detalle    pago_detalle[]
+}
+
+model pago_detalle {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pago_id        String?  @db.Uuid
+  cuota_id       String?  @db.Uuid
+  monto_aplicado Decimal? @db.Decimal
+  cuota          cuota?   @relation(fields: [cuota_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pago           pago?    @relation(fields: [pago_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model prestamo {
+  id             String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id     String?          @db.Uuid
+  monto          Decimal          @db.Decimal
+  plazo_meses    Int?
+  calendario     calendario_tipo?
+  tipo_prestamo  tipo_prestamo?
+  estado         estado_prestamo?
+  creado_en      DateTime?        @default(now()) @db.Timestamp(6)
+  actualizado_en DateTime?        @default(now()) @db.Timestamp(6)
+  version        Int?             @default(1)
+  alerta         alerta[]
+  cuota          cuota[]
+  usuario        usuario?         @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tope_regla {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id    String?   @db.Uuid
+  valor_mensual Decimal?  @db.Decimal
+  vigente_desde DateTime? @db.Date
+  vigente_hasta DateTime? @db.Date
+  estado        String?
+  creado_en     DateTime? @default(now()) @db.Timestamp(6)
+  version       Int?      @default(1)
+  usuario       usuario?  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model usuario {
+  id             String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nombre         String
+  email          String          @unique
+  estado         estado_usuario  @default(activo)
+  rol            rol_usuario     @default(usuario)
+  creado_en      DateTime?       @default(now()) @db.Timestamp(6)
+  actualizado_en DateTime?       @default(now()) @db.Timestamp(6)
+  version        Int?            @default(1)
+  alerta         alerta[]
+  auditoria      auditoria[]
+  autenticacion  autenticacion[]
+  gasto          gasto[]
+  pago           pago[]
+  prestamo       prestamo[]
+  tope_regla     tope_regla[]
+}
+
+enum calendario_tipo {
+  mensual
+  quincenal
+  semanal
+}
+
+enum estado_alerta {
+  activa
+  resuelta
+}
+
+enum estado_gasto {
+  pendiente
+  confirmado
+}
+
+enum estado_notificacion {
+  pendiente
+  enviado
+}
+
+enum estado_prestamo {
+  activo
+  pagado
+  vencido
+}
+
+enum estado_usuario {
+  activo
+  inactivo
+}
+
+enum rol_usuario {
+  usuario
+  administrador
+}
+
+enum tipo_prestamo {
+  personal
+  hipotecario
+  auto
+}
