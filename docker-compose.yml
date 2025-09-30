@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Servicio de documentación para desarrollo
+  opticash-docs-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    container_name: opticash-docs-dev
+    ports:
+      - "8080:80"
+    environment:
+      - ENVIRONMENT=development
+      - NGINX_PORT=80
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs:ro
+    restart: unless-stopped
+    networks:
+      - opticash-network
+    labels:
+      - "com.opticash.service=docs"
+      - "com.opticash.environment=dev"
+
+  # Servicio de documentación para QA
+  opticash-docs-qa:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    container_name: opticash-docs-qa
+    ports:
+      - "8081:80"
+    environment:
+      - ENVIRONMENT=qa
+      - NGINX_PORT=80
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs:ro
+    restart: unless-stopped
+    networks:
+      - opticash-network
+    labels:
+      - "com.opticash.service=docs"
+      - "com.opticash.environment=qa"
+
+  # Servicio de documentación para producción
+  opticash-docs-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    container_name: opticash-docs-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - ENVIRONMENT=production
+      - NGINX_PORT=80
+      - NGINX_SSL_PORT=443
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    networks:
+      - opticash-network
+    labels:
+      - "com.opticash.service=docs"
+      - "com.opticash.environment=prod"
+
+  # Servicio de monitoreo (opcional)
+  opticash-monitor:
+    image: nicolaka/netshoot
+    container_name: opticash-monitor
+    command: sleep infinity
+    networks:
+      - opticash-network
+    depends_on:
+      - opticash-docs-dev
+      - opticash-docs-qa
+      - opticash-docs-prod
+
+networks:
+  opticash-network:
+    driver: bridge
+    name: opticash-network
+
+volumes:
+  ssl_certs:
+    driver: local
