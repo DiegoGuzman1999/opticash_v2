@@ -1,18 +1,36 @@
 require('dotenv').config();
 const express = require('express');
 const database = require('./config/database');
+const { cors } = require('./middleware/cors');
 
 const app = express();
 
-// Middleware
-app.use(express.json());
+// Middleware global
+app.use(cors);
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Trust proxy para headers de IP real
+app.set('trust proxy', 1);
+
+// Middleware de logging de requests
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  const method = req.method;
+  const url = req.originalUrl;
+  const ip = req.ip || req.connection.remoteAddress;
+  
+  console.log(`[${timestamp}] ${method} ${url} - IP: ${ip}`);
+  next();
+});
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
   const dbHealth = await database.healthCheck();
   res.status(dbHealth.status === 'healthy' ? 200 : 503).json({
     server: 'running',
-    database: dbHealth
+    database: dbHealth,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -21,24 +39,68 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Servidor OptiCash v2 funcionando 🚀',
     version: '1.0.0',
-    status: 'active'
+    status: 'active',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
   });
 });
+
+// API Routes
+app.use('/api', require('./routes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({
-    error: 'Error interno del servidor',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
+  
+  // Error de validación
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      message: 'Error de validación',
+      errors: err.details || err.message
+    });
+  }
+
+  // Error de JWT
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Token inválido'
+    });
+  }
+
+  // Error de token expirado
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Token expirado'
+    });
+  }
+
+  // Error de CORS
+  if (err.message === 'No permitido por CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'Origen no permitido'
+    });
+  }
+
+  // Error genérico
+  res.status(err.status || 500).json({
+    success: false,
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Error interno del servidor',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
-    error: 'Endpoint no encontrado',
-    message: `La ruta ${req.originalUrl} no existe`
+    success: false,
+    message: 'Endpoint no encontrado',
+    path: req.originalUrl,
+    method: req.method,
+    timestamp: new Date().toISOString()
   });
 });
 
