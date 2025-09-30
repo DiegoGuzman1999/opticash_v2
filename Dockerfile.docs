@@ -1,0 +1,50 @@
+# Dockerfile para documentación OptiCash
+FROM nginx:alpine
+
+# Metadatos de la imagen
+LABEL maintainer="OptiCash Team <team@opticash.com>"
+LABEL version="1.0.0"
+LABEL description="Documentación técnica de OptiCash v2"
+
+# Instalar dependencias adicionales
+RUN apk add --no-cache \
+    curl \
+    bash \
+    && rm -rf /var/cache/apk/*
+
+# Crear directorio para documentación
+RUN mkdir -p /usr/share/nginx/html/docs
+
+# Copiar archivos de documentación
+COPY docs/ /usr/share/nginx/html/docs/
+
+# Copiar archivos de configuración
+COPY index.html /usr/share/nginx/html/
+COPY health.html /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Crear script de health check simple
+RUN echo '#!/bin/bash' > /usr/local/bin/health-check.sh && \
+    echo 'echo "Verificando estado de la documentacion..."' >> /usr/local/bin/health-check.sh && \
+    echo 'if ! pgrep nginx > /dev/null; then' >> /usr/local/bin/health-check.sh && \
+    echo '    echo "Nginx no esta corriendo"' >> /usr/local/bin/health-check.sh && \
+    echo '    exit 1' >> /usr/local/bin/health-check.sh && \
+    echo 'fi' >> /usr/local/bin/health-check.sh && \
+    echo 'if ! curl -f -s http://localhost/ > /dev/null; then' >> /usr/local/bin/health-check.sh && \
+    echo '    echo "Pagina principal no disponible"' >> /usr/local/bin/health-check.sh && \
+    echo '    exit 1' >> /usr/local/bin/health-check.sh && \
+    echo 'fi' >> /usr/local/bin/health-check.sh && \
+    echo 'echo "Documentacion funcionando correctamente"' >> /usr/local/bin/health-check.sh && \
+    echo 'exit 0' >> /usr/local/bin/health-check.sh
+
+RUN chmod +x /usr/local/bin/health-check.sh
+
+# Exponer puerto 80
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /usr/local/bin/health-check.sh
+
+# Comando por defecto
+CMD ["nginx", "-g", "daemon off;"]
