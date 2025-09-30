@@ -21,7 +21,7 @@ router.get('/perfil', usuarioController.obtenerPerfil);
 router.put('/perfil', usuarioController.actualizarPerfil);
 
 // Resumen personal
-router.get('/resumen', usuarioController.obtenerResumenPrestamos);
+// router.get('/resumen', usuarioController.obtenerResumenPrestamos); // TODO: Implementar método
 
 // Rutas de administración (requieren rol admin)
 router.get('/admin/usuarios', 

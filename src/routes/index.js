@@ -5,6 +5,8 @@ const router = express.Router();
 const usuarioRoutes = require('./usuarioRoutes');
 const prestamoRoutes = require('./prestamoRoutes');
 const pagoRoutes = require('./pagoRoutes');
+const incomeRoutes = require('./income');
+const categoryRoutes = require('./categories');
 
 // Middleware de logging para todas las rutas
 router.use((req, res, next) => {
@@ -17,6 +19,8 @@ router.use((req, res, next) => {
 router.use('/usuarios', usuarioRoutes);
 router.use('/prestamos', prestamoRoutes);
 router.use('/pagos', pagoRoutes);
+router.use('/income', incomeRoutes);
+router.use('/categories', categoryRoutes);
 
 // Ruta de información de la API
 router.get('/info', (req, res) => {
@@ -30,6 +34,8 @@ router.get('/info', (req, res) => {
         usuarios: '/api/usuarios',
         prestamos: '/api/prestamos',
         pagos: '/api/pagos',
+        income: '/api/income',
+        categories: '/api/categories',
         health: '/api/health'
       },
       documentation: 'https://api.opticash.com/docs',
@@ -53,7 +59,7 @@ router.get('/status', (req, res) => {
 });
 
 // Middleware para rutas no encontradas
-router.use('*', (req, res) => {
+router.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Endpoint no encontrado',
