@@ -20,8 +20,7 @@ router.use(authenticateToken);
 router.get('/perfil', usuarioController.obtenerPerfil);
 router.put('/perfil', usuarioController.actualizarPerfil);
 
-// Resumen personal
-router.get('/resumen', usuarioController.obtenerResumenPrestamos);
+// Resumen personal (se moverá a préstamos)
 
 // Rutas de administración (requieren rol admin)
 router.get('/admin/usuarios', 

@@ -53,7 +53,7 @@ router.get('/status', (req, res) => {
 });
 
 // Middleware para rutas no encontradas
-router.use('*', (req, res) => {
+router.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Endpoint no encontrado',
