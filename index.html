@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiCash Documentation v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .doc-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .doc-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .doc-card p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .doc-card a {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+        
+        .doc-card a:hover {
+            background: #5a6fd8;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .docs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 OptiCash Documentation</h1>
+            <p>Documentación técnica completa del proyecto OptiCash v2</p>
+            <div class="version-badge">
+                <span class="status-indicator"></span>
+                Versión 1.0.0 - Documentación Inicial
+            </div>
+        </div>
+        
+        <div class="docs-grid">
+            <div class="doc-card">
+                <h3>🏗️ Arquitectura del Sistema</h3>
+                <p>Arquitectura actual y evolución hacia microservicios, patrones de diseño y tecnologías utilizadas.</p>
+                <a href="docs/architecture.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>📋 Requisitos Funcionales</h3>
+                <p>Especificaciones detalladas de funcionalidades, casos de uso y reglas de negocio.</p>
+                <a href="docs/requirements.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>⚡ Requisitos No Funcionales</h3>
+                <p>Performance, seguridad, escalabilidad y otros requisitos de calidad del sistema.</p>
+                <a href="docs/non-functional-requirements.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>👥 Actores Principales</h3>
+                <p>Definición de roles, responsabilidades y permisos de los usuarios del sistema.</p>
+                <a href="docs/actors.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>🎯 Casos de Uso</h3>
+                <p>Flujos de trabajo, interacciones y escenarios de uso del sistema OptiCash.</p>
+                <a href="docs/use-cases.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>🔌 Mapeo de APIs</h3>
+                <p>Documentación completa de endpoints, contratos y ejemplos de uso de la API.</p>
+                <a href="docs/api-mapping.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>📊 Calidad de Servicio</h3>
+                <p>Métricas, SLAs, monitoreo y procedimientos de calidad del servicio.</p>
+                <a href="docs/qos.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>📐 Diagramas UML</h3>
+                <p>Diagramas de clases, secuencia, componentes y otros diagramas del sistema.</p>
+                <a href="docs/uml-diagrams.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>🗄️ Modelo Entidad-Relación</h3>
+                <p>Diseño de base de datos, relaciones entre entidades y estructura de datos.</p>
+                <a href="docs/entity-relationship-model.md">Ver Documentación</a>
+            </div>
+            
+            <div class="doc-card">
+                <h3>📝 Notas de Versión</h3>
+                <p>Historial de cambios, versiones y actualizaciones del proyecto.</p>
+                <a href="docs/release-notes.md">Ver Documentación</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 OptiCash Team. Documentación generada automáticamente por Jenkins CI/CD</p>
+            <p>Última actualización: <span id="lastUpdate"></span></p>
+        </div>
+    </div>
+    
+    <script>
+        // Mostrar fecha de última actualización
+        document.getElementById("lastUpdate").textContent = new Date().toLocaleString("es-ES");
+    </script>
+</body>
+</html>

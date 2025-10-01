@@ -69,6 +69,17 @@ model evento_outbox {
   clave_idempotencia String?
 }
 
+model categoria {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nombre      String
+  tipo        String
+  descripcion String?
+  activa      Boolean   @default(true)
+  creado_en   DateTime? @default(now()) @db.Timestamp(6)
+  gasto       gasto[]
+  ingreso     ingreso[]
+}
+
 model gasto {
   id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   usuario_id     String?       @db.Uuid
@@ -80,6 +91,21 @@ model gasto {
   creado_en      DateTime?     @default(now()) @db.Timestamp(6)
   version        Int?          @default(1)
   usuario        usuario?      @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categoria      categoria?    @relation(fields: [categoria_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ingreso {
+  id             String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuario_id     String?        @db.Uuid
+  descripcion    String?
+  categoria_id   String?        @db.Uuid
+  monto          Decimal?       @db.Decimal
+  fecha_ingreso  DateTime?      @db.Date
+  estado         estado_ingreso?
+  creado_en      DateTime?      @default(now()) @db.Timestamp(6)
+  version        Int?           @default(1)
+  usuario        usuario?       @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categoria      categoria?     @relation(fields: [categoria_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model notificacion {
@@ -156,6 +182,7 @@ model usuario {
   auditoria      auditoria[]
   autenticacion  autenticacion[]
   gasto          gasto[]
+  ingreso        ingreso[]
   pago           pago[]
   prestamo       prestamo[]
   tope_regla     tope_regla[]
@@ -173,8 +200,15 @@ enum estado_alerta {
 }
 
 enum estado_gasto {
-  pendiente
-  confirmado
+  activo
+  eliminado
+  modificado
+}
+
+enum estado_ingreso {
+  activo
+  eliminado
+  modificado
 }
 
 enum estado_notificacion {
